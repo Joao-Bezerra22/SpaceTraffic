@@ -17,7 +17,7 @@ void iniciarNave(Nave *nave) {
     nave->largura = 40;
     nave->altura = 40;
     nave->posicao.x = (GetScreenWidth() - nave->largura) / 2;
-    nave->posicao.y = GetScreenHeight() - 40;
+    nave->posicao.y = GetScreenHeight() - 120.0f;
     nave->velocidade = 5;
 }
 

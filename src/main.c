@@ -10,6 +10,7 @@ typedef enum {
 } EstadoJogo;
 
 int main(void) {
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(800, 450, "Space Traffic");
     SetTargetFPS(60);
 
@@ -46,9 +47,23 @@ int main(void) {
     float limiteMinimoAtual = spawnRateMinimoLap1;
 
     while (!WindowShouldClose()) {
+        if(IsKeyPressed(KEY_F11)){
+            ToggleFullscreen();
+            iniciarEstrelas(estrelas);
+            nave.posicao.x = (GetScreenWidth() - nave.largura) / 2;
+            nave.posicao.y = GetScreenHeight() - 120.0f;
+        }
+        if(IsWindowResized()){
+            iniciarEstrelas(estrelas);
+            nave.posicao.x = (GetScreenWidth() - nave.largura) / 2;
+            nave.posicao.y = GetScreenHeight() - 120.0f;
+        }
         float dt = GetFrameTime();
         atualizarEstrelas(estrelas, velocidadeExtraAsteroides);
         if (estado == TELA_INICIAL) {
+            
+            botao.x = (GetScreenWidth() - 200) / 2.0f;
+
             if (CheckCollisionPointRec(GetMousePosition(), botao) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 estado = JOGANDO;
             }
@@ -92,9 +107,19 @@ int main(void) {
                         pontoMaisProximo.y = Clamp(asteroides[i].posicao.y, nave.posicao.y, nave.posicao.y + nave.altura);
                         
                         float distancia = Vector2Distance(asteroides[i].posicao, pontoMaisProximo);
-                        if (distancia < 20.0f) {
+                        float raioColisao = 15.0f;
+                        if (asteroides[i].tipo == ASTEROIDE_PEQUENO) raioColisao = 10.0f;
+                        else if (asteroides[i].tipo == ASTEROIDE_MEDIO) raioColisao = 20.0f;
+                        else if (asteroides[i].tipo == ASTEROIDE_GRANDE) raioColisao = 35.0f;
+
+                        if (distancia < raioColisao) {
                             spawnRateAtual += spawnRateAtual / 3.0f;
                             asteroides[i].ativo = false;
+                            
+                            velocidadeKMH -= 150.0f; 
+                            if (velocidadeKMH < 100.0f) {
+                                velocidadeKMH = 100.0f;
+                            }
                         }
                     }
                 }
