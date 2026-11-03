@@ -14,12 +14,15 @@ Asteroide criarAsteroide(AsteroideTipo tipo, Vector2 posicao, Vector2 velocidade
     return asteroide;
 };
 
-void AsteroidAtualizar(Asteroide *asteroide, float FrameTime)
+void AsteroidAtualizar(Asteroide *asteroide, float FrameTime, float velocidadeExtra)
 {
     if(!asteroide->ativo) return;
 
+    Vector2 velocidadeReal = asteroide->velocidade;
+    velocidadeReal.y += velocidadeExtra;
+
     asteroide->posicao = Vector2Add(asteroide->posicao,
-        Vector2Scale(asteroide->velocidade, FrameTime));
+        Vector2Scale(velocidadeReal, FrameTime));
     asteroide->rotacao += asteroide->velocidaderotacao * FrameTime;
 }
 
@@ -30,7 +33,7 @@ void iniciarAsteroides(Asteroide asteroides[], int qtd, float velocidadeExtra) {
             
             Vector2 pos = { (float)GetRandomValue(0, GetScreenWidth()), -50.0f };
 
-            Vector2 vel = { 0.0f, (float)GetRandomValue(100, 300) + velocidadeExtra };
+            Vector2 vel = { 0.0f, (float)GetRandomValue(20, 50)};
             
             asteroides[i] = criarAsteroide(tipo, pos, vel);
             break;

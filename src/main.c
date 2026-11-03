@@ -96,7 +96,7 @@ int main(void) {
                 }
 
                 for (int i = 0; i < MAX_ASTEROIDES; i++) {
-                    AsteroidAtualizar(&asteroides[i], dt);
+                    AsteroidAtualizar(&asteroides[i], dt, velocidadeExtraAsteroides);
                     if (asteroides[i].posicao.y > GetScreenHeight() + 100) {
                         asteroides[i].ativo = false;
                     }
@@ -115,6 +115,12 @@ int main(void) {
                         if (distancia < raioColisao) {
                             spawnRateAtual += spawnRateAtual / 3.0f;
                             asteroides[i].ativo = false;
+
+                            for (int j = 0; j < MAX_ASTEROIDES; j++) {
+                                if (asteroides[j].ativo && asteroides[j].posicao.y < 0) {
+                                    asteroides[j].ativo = false;
+                                }
+                            }
                             
                             velocidadeKMH -= 150.0f; 
                             if (velocidadeKMH < 100.0f) {

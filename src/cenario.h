@@ -4,8 +4,8 @@
 #define NUM_ESTRELAS 100
 
 typedef struct {
-    int x;
-    int y;
+    float x;
+    float y;
 } Estrela;
 
 void iniciarEstrelas(Estrela estrelas[]);

@@ -22,7 +22,7 @@ typedef struct asteroide {
 } Asteroide;
 
 Asteroide criarAsteroide(AsteroideTipo tipo, Vector2 posicao, Vector2 velocidade);
-void AsteroidAtualizar(Asteroide *asteroide, float FrameTime);
+void AsteroidAtualizar(Asteroide *asteroide, float FrameTime, float velocidadeExtra);
 void desenharAsteroide(Asteroide asteroide[], int quantidade);
 void iniciarAsteroides(Asteroide asteroides[], int quantidade, float velocidadeExtra);
 #endif
