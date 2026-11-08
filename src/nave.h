@@ -7,7 +7,8 @@ typedef struct {
     Vector2 posicao;     
     float largura;       
     float altura;
-    float velocidade;   
+    float velocidade;  
+    int vidas; 
 } Nave;
 
 void iniciarNave(Nave *nave);

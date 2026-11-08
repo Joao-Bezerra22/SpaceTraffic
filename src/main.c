@@ -3,6 +3,7 @@
 #include "cenario.h"
 #include "nave.h"
 #include "asteroides.h"
+
 typedef enum {
     TELA_INICIAL,
     JOGANDO,
@@ -32,6 +33,8 @@ int main(void) {
     float velocidadeMaxKMH = 350.0f;     
     float taxaAceleracao = 15.0f;        
     float velocidadeExtraAsteroides = 0.0f;
+
+    float tempoJogo = 0.0f;
 
     int lapAtual = 1;
     int lapMax = 3;
@@ -66,6 +69,15 @@ int main(void) {
 
             if (CheckCollisionPointRec(GetMousePosition(), botao) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 estado = JOGANDO;
+                iniciarNave(&nave);
+                tempoJogo = 0.0f;
+                tempoContagem = 3.0f;
+                velocidadeKMH = 100.0f;
+                lapAtual = 1;
+
+                for (int i = 0; i < MAX_ASTEROIDES; i++) {
+                    asteroides[i].ativo = false;
+                }
             }
         } 
         else if (estado == JOGANDO) {
@@ -74,6 +86,7 @@ int main(void) {
             if (tempoContagem > 0) {
                 tempoContagem -= dt;
             } else {
+                tempoJogo += dt;
                 if (velocidadeKMH < velocidadeMaxKMH){
                     velocidadeKMH += taxaAceleracao*dt;
                     if (velocidadeKMH > velocidadeMaxKMH) velocidadeKMH = velocidadeMaxKMH;
@@ -126,6 +139,12 @@ int main(void) {
                             if (velocidadeKMH < 100.0f) {
                                 velocidadeKMH = 100.0f;
                             }
+
+                            nave.vidas--;
+
+                            if (nave.vidas <= 0) {
+                                estado = GAMEOVER;
+                            }
                         }
                     }
                 }
@@ -153,6 +172,11 @@ int main(void) {
                         tempoParaLap = 20.0f;
                     }
                 }
+            }
+        }
+        else if (estado == GAMEOVER) {
+            if (IsKeyPressed(KEY_ENTER)) {
+                estado = TELA_INICIAL;
             }
         }
 
@@ -189,10 +213,30 @@ int main(void) {
                 const char* textoVelocidade = TextFormat("KM/H %03i", (int)velocidadeKMH);
                 DrawText(textoVelocidade, 10, 10, 20, LIGHTGRAY);
 
+                DrawText("LIFE:", 160, 10, 20, RED);
+                for (int i = 0; i < nave.vidas; i++) {
+                    DrawCircle(245 + (i * 20), 20, 7, RED);
+                }
+
+                int minutos = (int)tempoJogo / 60;
+                int segundos = (int)tempoJogo % 60;
+                const char* textoTempoJogo = TextFormat("TEMPO: %02i:%02i", minutos, segundos);
+                DrawText(textoTempoJogo, 320, 10, 20, YELLOW);
+
                 const char* textoLap = TextFormat("LAP %i/%i", lapAtual, lapMax);
                 DrawText(textoLap, GetScreenWidth() - 100, 10, 20, LIGHTGRAY);
             }
         }
+
+        if (estado == GAMEOVER) {
+            int larguraGO = MeasureText("GAME OVER", 50);
+            DrawText("GAME OVER", (GetScreenWidth() - larguraGO) / 2, 150, 50, RED);
+
+            const char* subTexto = "Pressione ENTER para tentar novamente";
+            int larguraSub = MeasureText(subTexto, 20);
+            DrawText(subTexto, (GetScreenWidth() - larguraSub) / 2, 230, 20, LIGHTGRAY);
+        }
+
         EndDrawing();
     }
 
