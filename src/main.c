@@ -3,6 +3,7 @@
 #include "cenario.h"
 #include "nave.h"
 #include "asteroides.h"
+#include "tiro.h"
 
 typedef enum {
     TELA_INICIAL,
@@ -23,6 +24,7 @@ int main(void) {
     Rectangle botao = { (GetScreenWidth() - 200) / 2, 250, 200, 60 };
 
     Nave nave;
+    Tiro *listaTiros = NULL;
     iniciarNave(&nave);
 
     Asteroide asteroides[MAX_ASTEROIDES] = {0};
@@ -82,6 +84,11 @@ int main(void) {
         } 
         else if (estado == JOGANDO) {
             atualizarNave(&nave);
+
+            if (IsKeyPressed(KEY_SPACE)) {
+                Vector2 saida = { nave.posicao.x + nave.largura / 2 - 2, nave.posicao.y };
+                listaTiros = adicionarTiro(listaTiros, saida);
+            }
 
             if (tempoContagem > 0) {
                 tempoContagem -= dt;
@@ -197,6 +204,7 @@ int main(void) {
 
         if(estado == JOGANDO){
             desenharNave(nave);
+            desenharTiros(listaTiros);
 
             if (tempoContagem > 0) {
                 int numero = (int)(tempoContagem + 0.9f); 
