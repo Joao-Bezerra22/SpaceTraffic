@@ -72,6 +72,8 @@ int main(void) {
             if (CheckCollisionPointRec(GetMousePosition(), botao) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 estado = JOGANDO;
                 iniciarNave(&nave);
+                liberarTiros(listaTiros);
+                listaTiros = NULL;
                 tempoJogo = 0.0f;
                 tempoContagem = 3.0f;
                 velocidadeKMH = 100.0f;
@@ -89,6 +91,8 @@ int main(void) {
                 Vector2 saida = { nave.posicao.x + nave.largura / 2 - 2, nave.posicao.y };
                 listaTiros = adicionarTiro(listaTiros, saida);
             }
+
+            atualizarTiros(listaTiros);
 
             if (tempoContagem > 0) {
                 tempoContagem -= dt;

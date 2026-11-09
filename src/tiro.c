@@ -20,3 +20,22 @@ void desenharTiros(Tiro *lista) {
         atual = atual->next;
     }
 }
+
+void atualizarTiros(Tiro *lista){
+    Tiro *atual = lista;
+
+    while(atual != NULL){
+        atual->posicao.y -= VELOCIDADE_TIRO;
+        atual = atual->next;
+    }
+}
+
+void liberarTiros(Tiro *lista) {
+    Tiro *atual = lista;
+
+    while (atual != NULL) {
+        Tiro *proximo = atual->next;   
+        free(atual);            
+        atual = proximo;           
+    }
+}
