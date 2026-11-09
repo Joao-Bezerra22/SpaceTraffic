@@ -13,5 +13,6 @@ Tiro *adicionarTiro(Tiro *lista, Vector2 posicao);
 void desenharTiros(Tiro *lista);
 void atualizarTiros(Tiro *lista);
 void liberarTiros(Tiro *lista);
+Tiro *removerTirosForaDaTela(Tiro *lista);
 
 #endif

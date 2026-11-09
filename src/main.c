@@ -93,6 +93,7 @@ int main(void) {
             }
 
             atualizarTiros(listaTiros);
+            listaTiros = removerTirosForaDaTela(listaTiros);
 
             if (tempoContagem > 0) {
                 tempoContagem -= dt;
@@ -252,6 +253,7 @@ int main(void) {
         EndDrawing();
     }
 
+    liberarTiros(listaTiros);
     CloseWindow();
     return 0;
 }

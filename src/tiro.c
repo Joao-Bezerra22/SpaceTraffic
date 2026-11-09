@@ -39,3 +39,28 @@ void liberarTiros(Tiro *lista) {
         atual = proximo;           
     }
 }
+
+Tiro *removerTirosForaDaTela(Tiro *lista) {
+    Tiro *anterior = NULL;
+    Tiro *atual = lista;
+
+    while (atual != NULL) {
+        if (atual->posicao.y < -20) {          
+            Tiro *removido = atual;
+
+            if (anterior == NULL) {           
+                lista = atual->next;
+            } else {                           
+                anterior->next = atual->next;
+            }
+
+            atual = atual->next;
+            free(removido);
+        } else {
+            anterior = atual;
+            atual = atual->next;
+        }
+    }
+
+    return lista;
+}
