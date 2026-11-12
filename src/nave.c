@@ -61,3 +61,8 @@ void atualizarNave(Nave *nave) {
     if (nave->posicao.y < 0)        nave->posicao.y = 0;
     if (nave->posicao.y > limiteY)  nave->posicao.y = limiteY;
 }
+
+void posicionarNaveNoInicio(Nave *nave) {
+    nave->posicao.x = (GetScreenWidth() - nave->largura) / 2;
+    nave->posicao.y = GetScreenHeight() - DISTANCIA_DO_CHAO;
+}

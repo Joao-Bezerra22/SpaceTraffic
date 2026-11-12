@@ -1,5 +1,6 @@
 #ifndef NAVE_H
 #define NAVE_H
+#define DISTANCIA_DO_CHAO 120.0f
 
 #include "raylib.h"
 
@@ -14,5 +15,6 @@ typedef struct {
 void iniciarNave(Nave *nave);
 void atualizarNave(Nave *nave);
 void desenharNave(Nave nave);
+void posicionarNaveNoInicio(Nave *nave);
 
 #endif

@@ -26,16 +26,12 @@ int main(void) {
     Rectangle botao = { (GetScreenWidth() - 200) / 2, 250, 200, 60 };
 
     while (!WindowShouldClose()) {
-        if(IsKeyPressed(KEY_F11)){
+         if (IsKeyPressed(KEY_F11)) {
             ToggleFullscreen();
-            iniciarEstrelas(estrelas);
-            jogo.nave.posicao.x = (GetScreenWidth() - jogo.nave.largura) / 2;
-            jogo.nave.posicao.y = GetScreenHeight() - 120.0f;
         }
-        if(IsWindowResized()){
+        if (IsKeyPressed(KEY_F11) || IsWindowResized()) {
             iniciarEstrelas(estrelas);
-            jogo.nave.posicao.x = (GetScreenWidth() - jogo.nave.largura) / 2;
-            jogo.nave.posicao.y = GetScreenHeight() - 120.0f;
+            posicionarNaveNoInicio(&jogo.nave);
         }
         float dt = GetFrameTime();
         atualizarEstrelas(estrelas, jogo.velocidadeExtraAsteroides);
