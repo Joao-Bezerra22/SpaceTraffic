@@ -122,9 +122,100 @@ int main(void) {
 
                 for (int i = 0; i < MAX_ASTEROIDES; i++) {
                     AsteroidAtualizar(&asteroides[i], dt, velocidadeExtraAsteroides);
-                    if (asteroides[i].posicao.y > GetScreenHeight() + 100) {
+                    if (asteroides[i].posicao.y > GetScreenHeight() + 100 || 
+                        asteroides[i].posicao.x < -100 || 
+                        asteroides[i].posicao.x > GetScreenWidth() + 100) {
                         asteroides[i].ativo = false;
                     }
+                    if (asteroides[i].ativo) {
+                        float raioColisaoAst = 15.0f;
+                        if (asteroides[i].tipo == ASTEROIDE_PEQUENO) raioColisaoAst = 10.0f;
+                        else if (asteroides[i].tipo == ASTEROIDE_MEDIO) raioColisaoAst = 20.0f;
+                        else if (asteroides[i].tipo == ASTEROIDE_GRANDE) raioColisaoAst = 35.0f;
+
+                        Tiro *anteriorTiro = NULL;
+                        Tiro *atualTiro = listaTiros;
+
+                        while (atualTiro != NULL) {
+                            
+                            Vector2 centroTiro = { atualTiro->posicao.x + 2.0f, atualTiro->posicao.y + 6.0f };
+                            float distanciaTiro = Vector2Distance(asteroides[i].posicao, centroTiro);
+
+                            if (distanciaTiro < raioColisaoAst + 2.0f) { 
+                                
+                                Tiro *removido = atualTiro;
+                                if (anteriorTiro == NULL) {
+                                    listaTiros = atualTiro->next;
+                                } else {
+                                    anteriorTiro->next = atualTiro->next;
+                                }
+                                atualTiro = atualTiro->next;
+                                free(removido);
+
+                                
+                                Vector2 posOriginal = asteroides[i].posicao;
+                                bool eraGrandeOuMedio = (asteroides[i].tipo == ASTEROIDE_GRANDE || asteroides[i].tipo == ASTEROIDE_MEDIO);
+                                AsteroideTipo novoTipo = (asteroides[i].tipo == ASTEROIDE_GRANDE) ? ASTEROIDE_MEDIO : ASTEROIDE_PEQUENO;
+                                
+                                asteroides[i].ativo = false; // Libera este slot imediatamente
+
+                                // 3. Dividir o asteroide e jogar em diagonal para cima
+                                if (eraGrandeOuMedio) {
+                                    int gerados = 0;
+                                    
+                                    for (int k = 0; k < MAX_ASTEROIDES && gerados < 2; k++) {
+                                        if (!asteroides[k].ativo) {
+                                            Vector2 novaVel;
+                                            novaVel.x = (gerados == 0) ? -150.0f : 150.0f; // Afasta rápido para os lados
+                                            novaVel.y = -100.0f; // Eixo Y negativo faz os pedaços pularem para cima
+                                            
+                                            Vector2 novaPos = posOriginal;
+                                            novaPos.x += (gerados == 0) ? -20.0f : 20.0f; // Pequeno deslocamento lateral para evitar sobreposição
+                                            asteroides[k] = criarAsteroide(novoTipo, novaPos, novaVel);
+                                            gerados++;
+                                        }
+                                    }
+                                }
+                                
+                                
+                                break; 
+                            } else {
+                                anteriorTiro = atualTiro;
+                                atualTiro = atualTiro->next;
+                            }
+                        }
+                       
+                        if (asteroides[i].ativo) {
+                            Vector2 pontoMaisProximo;
+                            pontoMaisProximo.x = Clamp(asteroides[i].posicao.x, nave.posicao.x, nave.posicao.x + nave.largura);
+                            pontoMaisProximo.y = Clamp(asteroides[i].posicao.y, nave.posicao.y, nave.posicao.y + nave.altura);
+                            
+                            float distancia = Vector2Distance(asteroides[i].posicao, pontoMaisProximo);
+                            
+                            if (distancia < raioColisaoAst) {
+                                spawnRateAtual += spawnRateAtual / 3.0f;
+                                asteroides[i].ativo = false;
+
+                                for (int j = 0; j < MAX_ASTEROIDES; j++) {
+                                    if (asteroides[j].ativo && asteroides[j].posicao.y < 0) {
+                                        asteroides[j].ativo = false;
+                                    }
+                                }
+                                
+                                velocidadeKMH -= 150.0f; 
+                                if (velocidadeKMH < 100.0f) {
+                                    velocidadeKMH = 100.0f;
+                                }
+
+                                nave.vidas--;
+
+                                if (nave.vidas <= 0) {
+                                    estado = GAMEOVER;
+                                }
+                            }
+                        }
+                    }
+
 
                     if (asteroides[i].ativo) {
                         Vector2 pontoMaisProximo;

@@ -11,7 +11,7 @@ typedef enum AsteroideTipo {
 
 #define ASTEROIDE_ROTACAO_VELOCIDADE_MIN 5
 #define ASTEROIDE_ROTACAO_VELOCIDADE_MAX 240
-#define MAX_ASTEROIDES 20
+#define MAX_ASTEROIDES 50
 typedef struct asteroide {
     bool ativo;
     Vector2 posicao;
