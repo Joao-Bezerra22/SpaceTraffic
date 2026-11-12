@@ -184,36 +184,6 @@ int main(void) {
                                 atualTiro = atualTiro->next;
                             }
                         }
-                       
-                        if (asteroides[i].ativo) {
-                            Vector2 pontoMaisProximo;
-                            pontoMaisProximo.x = Clamp(asteroides[i].posicao.x, nave.posicao.x, nave.posicao.x + nave.largura);
-                            pontoMaisProximo.y = Clamp(asteroides[i].posicao.y, nave.posicao.y, nave.posicao.y + nave.altura);
-                            
-                            float distancia = Vector2Distance(asteroides[i].posicao, pontoMaisProximo);
-                            
-                            if (distancia < raioColisaoAst) {
-                                spawnRateAtual += spawnRateAtual / 3.0f;
-                                asteroides[i].ativo = false;
-
-                                for (int j = 0; j < MAX_ASTEROIDES; j++) {
-                                    if (asteroides[j].ativo && asteroides[j].posicao.y < 0) {
-                                        asteroides[j].ativo = false;
-                                    }
-                                }
-                                
-                                velocidadeKMH -= 150.0f; 
-                                if (velocidadeKMH < 100.0f) {
-                                    velocidadeKMH = 100.0f;
-                                }
-
-                                nave.vidas--;
-
-                                if (nave.vidas <= 0) {
-                                    estado = GAMEOVER;
-                                }
-                            }
-                        }
                     }
 
 

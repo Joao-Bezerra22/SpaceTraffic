@@ -1,2 +1,2 @@
-jogo.exe: src/main.c src/cenario.c src/nave.c src/asteroides.c src/tiro.c
-	gcc src/main.c src/cenario.c src/nave.c src/asteroides.c src/tiro.c -o jogo.exe -I C:\raylib\include -L C:\raylib\lib -lraylib -lopengl32 -lgdi32 -lwinmm
+jogo.exe: src/main.c src/cenario.c src/nave.c src/asteroides.c src/tiro.c src/jogo.c
+	gcc src/main.c src/cenario.c src/nave.c src/asteroides.c src/tiro.c src/jogo.c -o jogo.exe -I C:\raylib\include -L C:\raylib\lib -lraylib -lopengl32 -lgdi32 -lwinmm
