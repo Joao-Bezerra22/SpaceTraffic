@@ -24,4 +24,6 @@ void reiniciarJogo(Jogo *jogo) {
 
     jogo->spawnRateAtual = 0.8f;
     jogo->limiteMinimoAtual = SPAWN_MINIMO_LAP1;
-}
+
+    jogo->pontuacao = 0.0f;
+}

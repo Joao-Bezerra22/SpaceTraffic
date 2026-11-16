@@ -12,6 +12,7 @@
 #define SPAWN_MINIMO_LAP1    0.4f
 #define SPAWN_MINIMO_LAP2    0.25f
 #define SPAWN_MINIMO_LAP3    0.1f
+#define PONTOS_POR_ASTEROIDE 50
 
 typedef struct {
     Nave nave;
@@ -32,8 +33,10 @@ typedef struct {
 
     float spawnRateAtual;
     float limiteMinimoAtual;
+
+    float pontuacao;
 } Jogo;
 
 
 void reiniciarJogo(Jogo *jogo);
-#endif
+#endif

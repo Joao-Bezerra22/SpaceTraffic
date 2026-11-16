@@ -2,12 +2,20 @@
 #include <raymath.h>
 #include "cenario.h"
 #include "jogo.h"
+#include "placar.h"
 
 typedef enum {
     TELA_INICIAL,
     JOGANDO,
-    GAMEOVER
+    GAMEOVER,
+    TOPSCORES
 } EstadoJogo;
+
+void desenharBotao(Rectangle botao, const char *texto) {
+    DrawRectangleRec(botao, DARKGRAY);
+    int larguraTexto = MeasureText(texto, 30);
+    DrawText(texto, botao.x + (botao.width - larguraTexto) / 2, botao.y + 15, 30, WHITE);
+}
 
 int main(void) {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
@@ -24,6 +32,12 @@ int main(void) {
     reiniciarJogo(&jogo);
 
     Rectangle botao = { (GetScreenWidth() - 200) / 2, 250, 200, 60 };
+    Rectangle botaoTopScores = { (GetScreenWidth() - 260) / 2, 330, 260, 60 };
+    Rectangle botaoVoltar = { (GetScreenWidth() - 200) / 2, 360, 200, 60 };
+
+    Placar placar;
+    carregarPlacar(&placar);
+    int posicaoNoPlacar = -1;
 
     while (!WindowShouldClose()) {
          if (IsKeyPressed(KEY_F11)) {
@@ -38,12 +52,23 @@ int main(void) {
         if (estado == TELA_INICIAL) {
             
             botao.x = (GetScreenWidth() - 200) / 2.0f;
+            botaoTopScores.x = (GetScreenWidth() - 260) / 2.0f;
 
             if (CheckCollisionPointRec(GetMousePosition(), botao) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 estado = JOGANDO;
                 reiniciarJogo(&jogo);
             }
+            if (CheckCollisionPointRec(GetMousePosition(), botaoTopScores) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                estado = TOPSCORES;
+            }
         } 
+        else if (estado == TOPSCORES) {
+            botaoVoltar.x = (GetScreenWidth() - 200) / 2.0f;
+
+            if ((CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_ENTER)) {
+                estado = TELA_INICIAL;
+            }
+        }
         else if (estado == JOGANDO) {
             atualizarNave(&jogo.nave);
 
@@ -59,6 +84,7 @@ int main(void) {
                 jogo.tempoContagem -= dt;
             } else {
                 jogo.tempoJogo += dt;
+                jogo.pontuacao += jogo.velocidadeKMH * dt / 10.0f;
                 if (jogo.velocidadeKMH < VELOCIDADE_MAX_KMH){
                     jogo.velocidadeKMH += TAXA_ACELERACAO*dt;
                     if (jogo.velocidadeKMH > VELOCIDADE_MAX_KMH) jogo.velocidadeKMH = VELOCIDADE_MAX_KMH;
@@ -111,6 +137,7 @@ int main(void) {
                                 }
                                 atualTiro = atualTiro->next;
                                 free(removido);
+                                jogo.pontuacao += PONTOS_POR_ASTEROIDE;
 
                                 
                                 Vector2 posOriginal = jogo.asteroides[i].posicao;
@@ -175,8 +202,12 @@ int main(void) {
 
                             jogo.nave.vidas--;
 
-                            if (jogo.nave.vidas <= 0) {
+                            if (jogo.nave.vidas <= 0 && estado == JOGANDO) {
                                 estado = GAMEOVER;
+                                posicaoNoPlacar = registrarPontuacao(&placar, (int)jogo.pontuacao);
+                                if (posicaoNoPlacar != -1) {
+                                    salvarPlacar(placar);
+                                }
                             }
                         }
                     }
@@ -222,10 +253,13 @@ int main(void) {
             int larguraTitulo = MeasureText("Space Traffic", 50);
             DrawText("Space Traffic", (GetScreenWidth() - larguraTitulo) / 2, 130, 50, WHITE);
 
-            DrawRectangleRec(botao, DARKGRAY);
+            desenharBotao(botao, "START");
+            desenharBotao(botaoTopScores, "TOP SCORES");
+        }
 
-            int larguraStart = MeasureText("START", 30);
-            DrawText("START", botao.x + (botao.width - larguraStart) / 2, botao.y + 15, 30, WHITE);
+        if (estado == TOPSCORES) {
+            desenharTopScores(placar);
+            desenharBotao(botaoVoltar, "VOLTAR");
         }
 
         if(estado == JOGANDO){
@@ -257,6 +291,9 @@ int main(void) {
                 const char* textoTempoJogo = TextFormat("TEMPO: %02i:%02i", minutos, segundos);
                 DrawText(textoTempoJogo, 320, 10, 20, YELLOW);
 
+                const char* textoPontos = TextFormat("PONTOS: %i", (int)jogo.pontuacao);
+                DrawText(textoPontos, 10, 40, 20, WHITE);
+
                 const char* textoLap = TextFormat("LAP %i/%i", jogo.lapAtual, LAP_MAX);
                 DrawText(textoLap, GetScreenWidth() - 100, 10, 20, LIGHTGRAY);
             }
@@ -266,9 +303,23 @@ int main(void) {
             int larguraGO = MeasureText("GAME OVER", 50);
             DrawText("GAME OVER", (GetScreenWidth() - larguraGO) / 2, 150, 50, RED);
 
-            const char* subTexto = "Pressione ENTER para tentar novamente";
+            const char* textoPontosFinal = TextFormat("PONTOS: %i", (int)jogo.pontuacao);
+            int larguraPontos = MeasureText(textoPontosFinal, 30);
+            DrawText(textoPontosFinal, (GetScreenWidth() - larguraPontos) / 2, 215, 30, WHITE);
+
+            if (posicaoNoPlacar == 0) {
+                const char* textoRecorde = "NOVO RECORDE!";
+                int larguraRecorde = MeasureText(textoRecorde, 25);
+                DrawText(textoRecorde, (GetScreenWidth() - larguraRecorde) / 2, 255, 25, GOLD);
+            } else if (posicaoNoPlacar > 0) {
+                const char* textoTop = TextFormat("Voce entrou no TOP %i! (%io lugar)", MAX_TOPSCORES, posicaoNoPlacar + 1);
+                int larguraTop = MeasureText(textoTop, 20);
+                DrawText(textoTop, (GetScreenWidth() - larguraTop) / 2, 258, 20, YELLOW);
+            }
+
+            const char* subTexto = "Pressione ENTER para voltar ao menu";
             int larguraSub = MeasureText(subTexto, 20);
-            DrawText(subTexto, (GetScreenWidth() - larguraSub) / 2, 230, 20, LIGHTGRAY);
+            DrawText(subTexto, (GetScreenWidth() - larguraSub) / 2, 300, 20, LIGHTGRAY);
         }
 
         EndDrawing();
@@ -277,4 +328,4 @@ int main(void) {
     liberarTiros(jogo.listaTiros);
     CloseWindow();
     return 0;
-}
+}
