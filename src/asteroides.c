@@ -55,3 +55,9 @@ void desenharAsteroide(Asteroide asteroides[], int qtd) {
         }
     }
 }
+
+float raioColisao(AsteroideTipo tipo) {
+    if (tipo == ASTEROIDE_PEQUENO) return 10.0f;
+    if (tipo == ASTEROIDE_MEDIO)   return 20.0f;
+    return 35.0f;
+}

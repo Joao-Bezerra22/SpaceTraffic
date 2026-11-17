@@ -14,6 +14,12 @@
 #define SPAWN_MINIMO_LAP3    0.1f
 #define PONTOS_POR_ASTEROIDE 50
 
+#define VELOCIDADE_INICIAL_KMH     100.0f
+#define PERDA_VELOCIDADE_BATIDA    150.0f
+#define TEMPO_ENTRE_LAPS           20.0f
+#define REDUCAO_SPAWN_POR_SEGUNDO  0.25f
+#define DIVISOR_PONTOS_VELOCIDADE  10.0f
+
 typedef struct {
     Nave nave;
     Tiro *listaTiros;

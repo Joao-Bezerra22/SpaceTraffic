@@ -17,6 +17,15 @@ void desenharBotao(Rectangle botao, const char *texto) {
     DrawText(texto, botao.x + (botao.width - larguraTexto) / 2, botao.y + 15, 30, WHITE);
 }
 
+void desenharTextoCentralizado(const char *texto, int y, int tamanho, Color cor) {
+    int largura = MeasureText(texto, tamanho);
+    DrawText(texto, (GetScreenWidth() - largura) / 2, y, tamanho, cor);
+}
+
+bool botaoClicado(Rectangle botao) {
+    return CheckCollisionPointRec(GetMousePosition(), botao) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+}
+
 int main(void) {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(800, 450, "Space Traffic");
@@ -31,7 +40,7 @@ int main(void) {
     jogo.listaTiros = NULL;
     reiniciarJogo(&jogo);
 
-    Rectangle botao = { (GetScreenWidth() - 200) / 2, 250, 200, 60 };
+    Rectangle botaoStart = { (GetScreenWidth() - 200) / 2, 250, 200, 60 };
     Rectangle botaoTopScores = { (GetScreenWidth() - 260) / 2, 330, 260, 60 };
     Rectangle botaoVoltar = { (GetScreenWidth() - 200) / 2, 360, 200, 60 };
 
@@ -40,7 +49,7 @@ int main(void) {
     int posicaoNoPlacar = -1;
 
     while (!WindowShouldClose()) {
-         if (IsKeyPressed(KEY_F11)) {
+        if (IsKeyPressed(KEY_F11)) {
             ToggleFullscreen();
         }
         if (IsKeyPressed(KEY_F11) || IsWindowResized()) {
@@ -50,22 +59,21 @@ int main(void) {
         float dt = GetFrameTime();
         atualizarEstrelas(estrelas, jogo.velocidadeExtraAsteroides);
         if (estado == TELA_INICIAL) {
-            
-            botao.x = (GetScreenWidth() - 200) / 2.0f;
+            botaoStart.x = (GetScreenWidth() - 200) / 2.0f;
             botaoTopScores.x = (GetScreenWidth() - 260) / 2.0f;
 
-            if (CheckCollisionPointRec(GetMousePosition(), botao) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            if (botaoClicado(botaoStart)) {
                 estado = JOGANDO;
                 reiniciarJogo(&jogo);
             }
-            if (CheckCollisionPointRec(GetMousePosition(), botaoTopScores) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            if (botaoClicado(botaoTopScores)) {
                 estado = TOPSCORES;
             }
-        } 
+        }
         else if (estado == TOPSCORES) {
             botaoVoltar.x = (GetScreenWidth() - 200) / 2.0f;
 
-            if ((CheckCollisionPointRec(GetMousePosition(), botaoVoltar) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) || IsKeyPressed(KEY_ENTER)) {
+            if (botaoClicado(botaoVoltar) || IsKeyPressed(KEY_ENTER)) {
                 estado = TELA_INICIAL;
             }
         }
@@ -84,51 +92,46 @@ int main(void) {
                 jogo.tempoContagem -= dt;
             } else {
                 jogo.tempoJogo += dt;
-                jogo.pontuacao += jogo.velocidadeKMH * dt / 10.0f;
+                jogo.pontuacao += jogo.velocidadeKMH * dt / DIVISOR_PONTOS_VELOCIDADE;
                 if (jogo.velocidadeKMH < VELOCIDADE_MAX_KMH){
                     jogo.velocidadeKMH += TAXA_ACELERACAO*dt;
                     if (jogo.velocidadeKMH > VELOCIDADE_MAX_KMH) jogo.velocidadeKMH = VELOCIDADE_MAX_KMH;
                 }
-                
-                jogo.velocidadeExtraAsteroides = (jogo.velocidadeKMH - 100.0f) * 1.5f;
+
+                jogo.velocidadeExtraAsteroides = (jogo.velocidadeKMH - VELOCIDADE_INICIAL_KMH) * 1.5f;
 
                 if (jogo.spawnRateAtual > jogo.limiteMinimoAtual) {
-                    jogo.spawnRateAtual -= 0.25f * dt; 
+                    jogo.spawnRateAtual -= REDUCAO_SPAWN_POR_SEGUNDO * dt;
                 }
                 if (jogo.spawnRateAtual < jogo.limiteMinimoAtual) {
                     jogo.spawnRateAtual = jogo.limiteMinimoAtual;
                 }
 
                 jogo.tempoUltimoSpawn += dt;
-                
-                if (jogo.tempoUltimoSpawn > jogo.spawnRateAtual) { 
+
+                if (jogo.tempoUltimoSpawn > jogo.spawnRateAtual) {
                     iniciarAsteroides(jogo.asteroides, MAX_ASTEROIDES, jogo.velocidadeExtraAsteroides);
                     jogo.tempoUltimoSpawn = 0.0f;
                 }
 
                 for (int i = 0; i < MAX_ASTEROIDES; i++) {
                     AsteroidAtualizar(&jogo.asteroides[i], dt, jogo.velocidadeExtraAsteroides);
-                    if (jogo.asteroides[i].posicao.y > GetScreenHeight() + 100 || 
-                        jogo.asteroides[i].posicao.x < -100 || 
+                    if (jogo.asteroides[i].posicao.y > GetScreenHeight() + 100 ||
+                        jogo.asteroides[i].posicao.x < -100 ||
                         jogo.asteroides[i].posicao.x > GetScreenWidth() + 100) {
                         jogo.asteroides[i].ativo = false;
                     }
                     if (jogo.asteroides[i].ativo) {
-                        float raioColisaoAst = 15.0f;
-                        if (jogo.asteroides[i].tipo == ASTEROIDE_PEQUENO) raioColisaoAst = 10.0f;
-                        else if (jogo.asteroides[i].tipo == ASTEROIDE_MEDIO) raioColisaoAst = 20.0f;
-                        else if (jogo.asteroides[i].tipo == ASTEROIDE_GRANDE) raioColisaoAst = 35.0f;
+                        float raioColisaoAst = raioColisao(jogo.asteroides[i].tipo);
 
                         Tiro *anteriorTiro = NULL;
                         Tiro *atualTiro = jogo.listaTiros;
 
                         while (atualTiro != NULL) {
-                            
                             Vector2 centroTiro = { atualTiro->posicao.x + 2.0f, atualTiro->posicao.y + 6.0f };
                             float distanciaTiro = Vector2Distance(jogo.asteroides[i].posicao, centroTiro);
 
-                            if (distanciaTiro < raioColisaoAst + 2.0f) { 
-                                
+                            if (distanciaTiro < raioColisaoAst + 2.0f) {
                                 Tiro *removido = atualTiro;
                                 if (anteriorTiro == NULL) {
                                     jogo.listaTiros = atualTiro->next;
@@ -139,23 +142,22 @@ int main(void) {
                                 free(removido);
                                 jogo.pontuacao += PONTOS_POR_ASTEROIDE;
 
-                                
                                 Vector2 posOriginal = jogo.asteroides[i].posicao;
                                 bool eraGrandeOuMedio = (jogo.asteroides[i].tipo == ASTEROIDE_GRANDE || jogo.asteroides[i].tipo == ASTEROIDE_MEDIO);
                                 AsteroideTipo novoTipo = (jogo.asteroides[i].tipo == ASTEROIDE_GRANDE) ? ASTEROIDE_MEDIO : ASTEROIDE_PEQUENO;
-                                
-                                jogo.asteroides[i].ativo = false; // Libera este slot imediatamente
 
-                                // 3. Dividir o asteroide e jogar em diagonal para cima
+                                jogo.asteroides[i].ativo = false;
+
+                                // Divide o asteroide em dois pedacos que voam em diagonal para cima
                                 if (eraGrandeOuMedio) {
                                     int gerados = 0;
-                                    
+
                                     for (int k = 0; k < MAX_ASTEROIDES && gerados < 2; k++) {
                                         if (!jogo.asteroides[k].ativo) {
                                             Vector2 novaVel;
                                             novaVel.x = (gerados == 0) ? -150.0f : 150.0f; // Afasta rápido para os lados
                                             novaVel.y = -100.0f; // Eixo Y negativo faz os pedaços pularem para cima
-                                            
+
                                             Vector2 novaPos = posOriginal;
                                             novaPos.x += (gerados == 0) ? -20.0f : 20.0f; // Pequeno deslocamento lateral para evitar sobreposição
                                             jogo.asteroides[k] = criarAsteroide(novoTipo, novaPos, novaVel);
@@ -163,9 +165,8 @@ int main(void) {
                                         }
                                     }
                                 }
-                                
-                                
-                                break; 
+
+                                break;
                             } else {
                                 anteriorTiro = atualTiro;
                                 atualTiro = atualTiro->next;
@@ -173,19 +174,15 @@ int main(void) {
                         }
                     }
 
-
                     if (jogo.asteroides[i].ativo) {
                         Vector2 pontoMaisProximo;
                         pontoMaisProximo.x = Clamp(jogo.asteroides[i].posicao.x, jogo.nave.posicao.x, jogo.nave.posicao.x + jogo.nave.largura);
                         pontoMaisProximo.y = Clamp(jogo.asteroides[i].posicao.y, jogo.nave.posicao.y, jogo.nave.posicao.y + jogo.nave.altura);
-                        
-                        float distancia = Vector2Distance(jogo.asteroides[i].posicao, pontoMaisProximo);
-                        float raioColisao = 15.0f;
-                        if (jogo.asteroides[i].tipo == ASTEROIDE_PEQUENO) raioColisao = 10.0f;
-                        else if (jogo.asteroides[i].tipo == ASTEROIDE_MEDIO) raioColisao = 20.0f;
-                        else if (jogo.asteroides[i].tipo == ASTEROIDE_GRANDE) raioColisao = 35.0f;
 
-                        if (distancia < raioColisao) {
+                        float distancia = Vector2Distance(jogo.asteroides[i].posicao, pontoMaisProximo);
+                        float raioNave = raioColisao(jogo.asteroides[i].tipo);
+
+                        if (distancia < raioNave) {
                             jogo.spawnRateAtual += jogo.spawnRateAtual / 3.0f;
                             jogo.asteroides[i].ativo = false;
 
@@ -194,10 +191,10 @@ int main(void) {
                                     jogo.asteroides[j].ativo = false;
                                 }
                             }
-                            
-                            jogo.velocidadeKMH -= 150.0f; 
-                            if (jogo.velocidadeKMH < 100.0f) {
-                                jogo.velocidadeKMH = 100.0f;
+
+                            jogo.velocidadeKMH -= PERDA_VELOCIDADE_BATIDA;
+                            if (jogo.velocidadeKMH < VELOCIDADE_INICIAL_KMH) {
+                                jogo.velocidadeKMH = VELOCIDADE_INICIAL_KMH;
                             }
 
                             jogo.nave.vidas--;
@@ -225,15 +222,15 @@ int main(void) {
                     if (jogo.posicaoLinhaLapY >= jogo.nave.posicao.y && jogo.posicaoLinhaLapY <= jogo.nave.posicao.y + jogo.nave.altura) {
                         jogo.lapAtual++;
                         jogo.linhaLapAtiva = false;
-                        jogo.tempoParaLap = 20.0f;
+                        jogo.tempoParaLap = TEMPO_ENTRE_LAPS;
 
                         if (jogo.lapAtual == 2) jogo.limiteMinimoAtual = SPAWN_MINIMO_LAP2;
                         if (jogo.lapAtual == 3) jogo.limiteMinimoAtual = SPAWN_MINIMO_LAP3;
                     }
-                    
+
                     if (jogo.posicaoLinhaLapY > GetScreenHeight() + 50) {
                         jogo.linhaLapAtiva = false;
-                        jogo.tempoParaLap = 20.0f;
+                        jogo.tempoParaLap = TEMPO_ENTRE_LAPS;
                     }
                 }
             }
@@ -249,78 +246,63 @@ int main(void) {
             desenharEstrelas(estrelas);
 
             if (estado == TELA_INICIAL) {
-
-            int larguraTitulo = MeasureText("Space Traffic", 50);
-            DrawText("Space Traffic", (GetScreenWidth() - larguraTitulo) / 2, 130, 50, WHITE);
-
-            desenharBotao(botao, "START");
-            desenharBotao(botaoTopScores, "TOP SCORES");
-        }
-
-        if (estado == TOPSCORES) {
-            desenharTopScores(placar);
-            desenharBotao(botaoVoltar, "VOLTAR");
-        }
-
-        if(estado == JOGANDO){
-            desenharNave(jogo.nave);
-            desenharTiros(jogo.listaTiros);
-
-            if (jogo.tempoContagem > 0) {
-                int numero = (int)(jogo.tempoContagem + 0.9f); 
-                const char* textoTempo = TextFormat("%d", numero);
-                int larguraTexto = MeasureText(textoTempo, 80);
-                DrawText(textoTempo, (GetScreenWidth() - larguraTexto) / 2, GetScreenHeight() / 2 - 40, 80, RED);
-            } else {
-                desenharAsteroide(jogo.asteroides, MAX_ASTEROIDES);
-
-                if(jogo.linhaLapAtiva){
-                    DrawLine(0, (int)jogo.posicaoLinhaLapY, GetScreenWidth(), (int)jogo.posicaoLinhaLapY, YELLOW);
-                }
-
-                const char* textoVelocidade = TextFormat("KM/H %03i", (int)jogo.velocidadeKMH);
-                DrawText(textoVelocidade, 10, 10, 20, LIGHTGRAY);
-
-                DrawText("LIFE:", 160, 10, 20, RED);
-                for (int i = 0; i < jogo.nave.vidas; i++) {
-                    DrawCircle(245 + (i * 20), 20, 7, RED);
-                }
-
-                int minutos = (int)jogo.tempoJogo / 60;
-                int segundos = (int)jogo.tempoJogo % 60;
-                const char* textoTempoJogo = TextFormat("TEMPO: %02i:%02i", minutos, segundos);
-                DrawText(textoTempoJogo, 320, 10, 20, YELLOW);
-
-                const char* textoPontos = TextFormat("PONTOS: %i", (int)jogo.pontuacao);
-                DrawText(textoPontos, 10, 40, 20, WHITE);
-
-                const char* textoLap = TextFormat("LAP %i/%i", jogo.lapAtual, LAP_MAX);
-                DrawText(textoLap, GetScreenWidth() - 100, 10, 20, LIGHTGRAY);
-            }
-        }
-
-        if (estado == GAMEOVER) {
-            int larguraGO = MeasureText("GAME OVER", 50);
-            DrawText("GAME OVER", (GetScreenWidth() - larguraGO) / 2, 150, 50, RED);
-
-            const char* textoPontosFinal = TextFormat("PONTOS: %i", (int)jogo.pontuacao);
-            int larguraPontos = MeasureText(textoPontosFinal, 30);
-            DrawText(textoPontosFinal, (GetScreenWidth() - larguraPontos) / 2, 215, 30, WHITE);
-
-            if (posicaoNoPlacar == 0) {
-                const char* textoRecorde = "NOVO RECORDE!";
-                int larguraRecorde = MeasureText(textoRecorde, 25);
-                DrawText(textoRecorde, (GetScreenWidth() - larguraRecorde) / 2, 255, 25, GOLD);
-            } else if (posicaoNoPlacar > 0) {
-                const char* textoTop = TextFormat("Voce entrou no TOP %i! (%io lugar)", MAX_TOPSCORES, posicaoNoPlacar + 1);
-                int larguraTop = MeasureText(textoTop, 20);
-                DrawText(textoTop, (GetScreenWidth() - larguraTop) / 2, 258, 20, YELLOW);
+                desenharTextoCentralizado("Space Traffic", 130, 50, WHITE);
+                desenharBotao(botaoStart, "START");
+                desenharBotao(botaoTopScores, "TOP SCORES");
             }
 
-            const char* subTexto = "Pressione ENTER para voltar ao menu";
-            int larguraSub = MeasureText(subTexto, 20);
-            DrawText(subTexto, (GetScreenWidth() - larguraSub) / 2, 300, 20, LIGHTGRAY);
-        }
+            if (estado == TOPSCORES) {
+                desenharTopScores(placar);
+                desenharBotao(botaoVoltar, "VOLTAR");
+            }
+
+            if (estado == JOGANDO) {
+                desenharNave(jogo.nave);
+                desenharTiros(jogo.listaTiros);
+
+                if (jogo.tempoContagem > 0) {
+                    int numero = (int)(jogo.tempoContagem + 0.9f);
+                    desenharTextoCentralizado(TextFormat("%d", numero), GetScreenHeight() / 2 - 40, 80, RED);
+                } else {
+                    desenharAsteroide(jogo.asteroides, MAX_ASTEROIDES);
+
+                    if(jogo.linhaLapAtiva){
+                        DrawLine(0, (int)jogo.posicaoLinhaLapY, GetScreenWidth(), (int)jogo.posicaoLinhaLapY, YELLOW);
+                    }
+
+                    const char* textoVelocidade = TextFormat("KM/H %03i", (int)jogo.velocidadeKMH);
+                    DrawText(textoVelocidade, 10, 10, 20, LIGHTGRAY);
+
+                    DrawText("LIFE:", 160, 10, 20, RED);
+                    for (int i = 0; i < jogo.nave.vidas; i++) {
+                        DrawCircle(245 + (i * 20), 20, 7, RED);
+                    }
+
+                    int minutos = (int)jogo.tempoJogo / 60;
+                    int segundos = (int)jogo.tempoJogo % 60;
+                    const char* textoTempoJogo = TextFormat("TEMPO: %02i:%02i", minutos, segundos);
+                    DrawText(textoTempoJogo, 320, 10, 20, YELLOW);
+
+                    const char* textoPontos = TextFormat("PONTOS: %i", (int)jogo.pontuacao);
+                    DrawText(textoPontos, 10, 40, 20, WHITE);
+
+                    const char* textoLap = TextFormat("LAP %i/%i", jogo.lapAtual, LAP_MAX);
+                    DrawText(textoLap, GetScreenWidth() - 100, 10, 20, LIGHTGRAY);
+                }
+            }
+
+            if (estado == GAMEOVER) {
+                desenharTextoCentralizado("GAME OVER", 150, 50, RED);
+                desenharTextoCentralizado(TextFormat("PONTOS: %i", (int)jogo.pontuacao), 215, 30, WHITE);
+
+                if (posicaoNoPlacar == 0) {
+                    desenharTextoCentralizado("NOVO RECORDE!", 255, 25, GOLD);
+                } else if (posicaoNoPlacar > 0) {
+                    desenharTextoCentralizado(TextFormat("Voce entrou no TOP %i! (%io lugar)", MAX_TOPSCORES, posicaoNoPlacar + 1), 258, 20, YELLOW);
+                }
+
+                desenharTextoCentralizado("Pressione ENTER para voltar ao menu", 300, 20, LIGHTGRAY);
+            }
 
         EndDrawing();
     }

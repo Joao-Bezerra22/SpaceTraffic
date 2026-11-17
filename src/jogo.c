@@ -14,11 +14,11 @@ void reiniciarJogo(Jogo *jogo) {
     jogo->tempoUltimoSpawn = 0.0f;
     jogo->tempoJogo = 0.0f;
 
-    jogo->velocidadeKMH = 100.0f;
+    jogo->velocidadeKMH = VELOCIDADE_INICIAL_KMH;
     jogo->velocidadeExtraAsteroides = 0.0f;
 
     jogo->lapAtual = 1;
-    jogo->tempoParaLap = 20.0f;
+    jogo->tempoParaLap = TEMPO_ENTRE_LAPS;
     jogo->linhaLapAtiva = false;
     jogo->posicaoLinhaLapY = -10.0f;
 
