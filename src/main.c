@@ -3,9 +3,11 @@
 #include "cenario.h"
 #include "jogo.h"
 #include "placar.h"
+#include "cutscene.h"
 
 typedef enum {
     TELA_INICIAL,
+    CUTSCENE,
     JOGANDO,
     GAMEOVER,
     TOPSCORES
@@ -30,6 +32,9 @@ int main(void) {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(800, 450, "Space Traffic");
     SetTargetFPS(60);
+
+    Cutscene cutscene;
+    carregarCutscene(&cutscene);
 
     Estrela estrelas[NUM_ESTRELAS];
     iniciarEstrelas(estrelas);
@@ -63,8 +68,8 @@ int main(void) {
             botaoTopScores.x = (GetScreenWidth() - 260) / 2.0f;
 
             if (botaoClicado(botaoStart)) {
-                estado = JOGANDO;
-                reiniciarJogo(&jogo);
+                estado = CUTSCENE;
+                iniciarCutscene(&cutscene);
             }
             if (botaoClicado(botaoTopScores)) {
                 estado = TOPSCORES;
@@ -75,6 +80,12 @@ int main(void) {
 
             if (botaoClicado(botaoVoltar) || IsKeyPressed(KEY_ENTER)) {
                 estado = TELA_INICIAL;
+            }
+        }
+        else if (estado == CUTSCENE) {
+            if (atualizarCutscene(&cutscene, dt)) {
+            estado = JOGANDO;
+            reiniciarJogo(&jogo);   // começa a contagem regressiva
             }
         }
         else if (estado == JOGANDO) {
@@ -244,6 +255,13 @@ int main(void) {
         BeginDrawing();
             ClearBackground(BLACK);
             desenharEstrelas(estrelas);
+            if (!(estado == CUTSCENE && cutsceneMostrandoImagem(&cutscene))) {
+                desenharEstrelas(estrelas);
+            }
+
+            if (estado == CUTSCENE) {
+                desenharCutscene(&cutscene);
+            }
 
             if (estado == TELA_INICIAL) {
                 desenharTextoCentralizado("Space Traffic", 130, 50, WHITE);
@@ -308,6 +326,7 @@ int main(void) {
     }
 
     liberarTiros(jogo.listaTiros);
+    liberarCutscene(&cutscene);
     CloseWindow();
     return 0;
-}
+}
