@@ -1,4 +1,4 @@
-ARQUIVOS = src/main.c src/cenario.c src/nave.c src/asteroides.c src/tiro.c src/jogo.c src/placar.c src/cutscene.c
+ARQUIVOS = src/main.c src/cenario.c src/nave.c src/asteroides.c src/tiro.c src/jogo.c src/placar.c src/cutscene.c src/som.c
 
 ifeq ($(OS),Windows_NT)
     EXE   = jogo.exe

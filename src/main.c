@@ -4,7 +4,7 @@
 #include "jogo.h"
 #include "placar.h"
 #include "cutscene.h"
-
+#include "som.h"
 typedef enum {
     TELA_INICIAL,
     CUTSCENE,
@@ -32,6 +32,9 @@ int main(void) {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(800, 450, "Space Traffic");
     SetTargetFPS(60);
+
+    Som som;
+    carregarSom(&som);
 
     Cutscene cutscene;
     carregarCutscene(&cutscene);
@@ -94,6 +97,7 @@ int main(void) {
             if (IsKeyPressed(KEY_SPACE)) {
                 Vector2 saida = { jogo.nave.posicao.x + jogo.nave.largura / 2 - 2, jogo.nave.posicao.y };
                 jogo.listaTiros = adicionarTiro(jogo.listaTiros, saida);
+                tocarSomTiro(&som);
             }
 
             atualizarTiros(jogo.listaTiros);
@@ -152,6 +156,7 @@ int main(void) {
                                 atualTiro = atualTiro->next;
                                 free(removido);
                                 jogo.pontuacao += PONTOS_POR_ASTEROIDE;
+                                tocarSomExplosao(&som);
 
                                 Vector2 posOriginal = jogo.asteroides[i].posicao;
                                 bool eraGrandeOuMedio = (jogo.asteroides[i].tipo == ASTEROIDE_GRANDE || jogo.asteroides[i].tipo == ASTEROIDE_MEDIO);
@@ -209,6 +214,7 @@ int main(void) {
                             }
 
                             jogo.nave.vidas--;
+                            tocarSomDano(&som);
 
                             if (jogo.nave.vidas <= 0 && estado == JOGANDO) {
                                 estado = GAMEOVER;
@@ -327,6 +333,7 @@ int main(void) {
 
     liberarTiros(jogo.listaTiros);
     liberarCutscene(&cutscene);
+    liberarSom(&som);
     CloseWindow();
     return 0;
 }
