@@ -34,6 +34,9 @@ int main(void) {
     Estrela estrelas[NUM_ESTRELAS];
     iniciarEstrelas(estrelas);
 
+    Planeta planetas[MAX_PLANETAS];
+    iniciarPlanetas(planetas);
+
     EstadoJogo estado = TELA_INICIAL;
 
     Jogo jogo;
@@ -65,6 +68,7 @@ int main(void) {
             if (botaoClicado(botaoStart)) {
                 estado = JOGANDO;
                 reiniciarJogo(&jogo);
+                iniciarPlanetas(planetas);
             }
             if (botaoClicado(botaoTopScores)) {
                 estado = TOPSCORES;
@@ -99,6 +103,8 @@ int main(void) {
                 }
 
                 jogo.velocidadeExtraAsteroides = (jogo.velocidadeKMH - VELOCIDADE_INICIAL_KMH) * 1.5f;
+
+                atualizarPlanetas(planetas, dt, jogo.velocidadeExtraAsteroides, jogo.lapAtual);
 
                 if (jogo.spawnRateAtual > jogo.limiteMinimoAtual) {
                     jogo.spawnRateAtual -= REDUCAO_SPAWN_POR_SEGUNDO * dt;
@@ -245,6 +251,10 @@ int main(void) {
             ClearBackground(BLACK);
             desenharEstrelas(estrelas);
 
+            if (estado == JOGANDO) {
+                desenharPlanetas(planetas, jogo.lapAtual);
+            }
+
             if (estado == TELA_INICIAL) {
                 desenharTextoCentralizado("Space Traffic", 130, 50, WHITE);
                 desenharBotao(botaoStart, "START");
@@ -310,4 +320,4 @@ int main(void) {
     liberarTiros(jogo.listaTiros);
     CloseWindow();
     return 0;
-}
+}
