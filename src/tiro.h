@@ -4,7 +4,7 @@
 
 #include "raylib.h"
 
-typedef struct {
+typedef struct Tiro {
     Vector2 posicao;
     struct Tiro* next;
 } Tiro;
