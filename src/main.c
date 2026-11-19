@@ -11,7 +11,8 @@ typedef enum {
     CUTSCENE,
     JOGANDO,
     GAMEOVER,
-    TOPSCORES
+    TOPSCORES,
+    VITORIA
 } EstadoJogo;
 
 void desenharBotao(Rectangle botao, const char *texto) {
@@ -61,6 +62,7 @@ int main(void) {
     carregarPlacar(&placar);
     int posicaoNoPlacar = -1;
     bool imagemAnterior = false;
+
 
     while (!WindowShouldClose()) {
         if (IsKeyPressed(KEY_F11)) {
@@ -121,7 +123,15 @@ int main(void) {
         }
         else if (estado == JOGANDO) {
             atualizarNave(&jogo.nave);
+            
+            jogo.cooldownTiro -= dt;
 
+            if (IsKeyPressed(KEY_SPACE) && jogo.cooldownTiro <= 0.0f) {
+                Vector2 saida = { jogo.nave.posicao.x + jogo.nave.largura / 2 - 2, jogo.nave.posicao.y };
+                jogo.listaTiros = adicionarTiro(jogo.listaTiros, saida);
+                tocarSomTiro(&som);
+                jogo.cooldownTiro = COOLDOWN_TIRO;
+            }
             if (jogo.tempoContagem > 0) {
                 jogo.nave.posicao.x = (GetScreenWidth() - jogo.nave.largura) / 2.0f;
                 jogo.nave.posicao.y = GetScreenHeight() - jogo.nave.altura - 65.0f; // Sutilmente acima de Marte
@@ -131,6 +141,7 @@ int main(void) {
                 Vector2 saida = { jogo.nave.posicao.x + jogo.nave.largura / 2 - 2, jogo.nave.posicao.y };
                 jogo.listaTiros = adicionarTiro(jogo.listaTiros, saida);
                 tocarSomTiro(&som);
+                jogo.cooldownTiro = COOLDOWN_TIRO;
             }
 
             atualizarTiros(jogo.listaTiros);
@@ -264,7 +275,7 @@ int main(void) {
                         }
                     }
                 }
-                if (!jogo.linhaLapAtiva && jogo.lapAtual < LAP_MAX) {
+                if (!jogo.linhaLapAtiva && jogo.lapAtual <= LAP_MAX) {
                     jogo.tempoParaLap -= dt;
                     if (jogo.tempoParaLap <= 0) {
                         jogo.linhaLapAtiva = true;
@@ -279,6 +290,15 @@ int main(void) {
                         jogo.linhaLapAtiva = false;
                         jogo.tempoParaLap = TEMPO_ENTRE_LAPS;
 
+                        if (jogo.lapAtual > LAP_MAX && estado == JOGANDO) {
+                            estado = VITORIA;
+                            tocarTrilha(&som, TRILHA_NENHUMA);
+                            posicaoNoPlacar = registrarPontuacao(&placar, (int)jogo.pontuacao);
+                            if (posicaoNoPlacar != -1) {
+                                salvarPlacar(placar);
+                            }
+                        }
+
                         if (jogo.lapAtual == 2) jogo.limiteMinimoAtual = SPAWN_MINIMO_LAP2;
                         if (jogo.lapAtual == 3) jogo.limiteMinimoAtual = SPAWN_MINIMO_LAP3;
                     }
@@ -290,7 +310,7 @@ int main(void) {
                 }
             }
         }
-        else if (estado == GAMEOVER) {
+        else if (estado == GAMEOVER || estado == VITORIA) {
             if (IsKeyPressed(KEY_ENTER)) {
                 estado = TELA_INICIAL;
                 tocarTrilha(&som, TRILHA_MENU);
@@ -356,8 +376,9 @@ int main(void) {
                 }
             }
 
-            if (estado == GAMEOVER) {
-                desenharTextoCentralizado("GAME OVER", 150, 50, RED);
+            if (estado == GAMEOVER || estado == VITORIA) {
+                if (estado == VITORIA) desenharTextoCentralizado("PARABENS! VOCE VENCEU!", 150, 50, GREEN);
+                else desenharTextoCentralizado("GAME OVER", 150, 50, RED);
                 desenharTextoCentralizado(TextFormat("PONTOS: %i", (int)jogo.pontuacao), 215, 30, WHITE);
 
                 if (posicaoNoPlacar == 0) {

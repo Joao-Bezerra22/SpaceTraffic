@@ -26,4 +26,6 @@ void reiniciarJogo(Jogo *jogo) {
     jogo->limiteMinimoAtual = SPAWN_MINIMO_LAP1;
 
     jogo->pontuacao = 0.0f;
-}
+
+    jogo->cooldownTiro = 0.0f;
+}
