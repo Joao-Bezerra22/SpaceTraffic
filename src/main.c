@@ -3,9 +3,11 @@
 #include "cenario.h"
 #include "jogo.h"
 #include "placar.h"
-
+#include "cutscene.h"
+#include "som.h"
 typedef enum {
     TELA_INICIAL,
+    CUTSCENE,
     JOGANDO,
     GAMEOVER,
     TOPSCORES
@@ -31,11 +33,14 @@ int main(void) {
     InitWindow(800, 450, "Space Traffic");
     SetTargetFPS(60);
 
+    Som som;
+    carregarSom(&som);
+
+    Cutscene cutscene;
+    carregarCutscene(&cutscene);
+
     Estrela estrelas[NUM_ESTRELAS];
     iniciarEstrelas(estrelas);
-
-    Planeta planetas[MAX_PLANETAS];
-    iniciarPlanetas(planetas);
 
     EstadoJogo estado = TELA_INICIAL;
 
@@ -66,9 +71,8 @@ int main(void) {
             botaoTopScores.x = (GetScreenWidth() - 260) / 2.0f;
 
             if (botaoClicado(botaoStart)) {
-                estado = JOGANDO;
-                reiniciarJogo(&jogo);
-                iniciarPlanetas(planetas);
+                estado = CUTSCENE;
+                iniciarCutscene(&cutscene);
             }
             if (botaoClicado(botaoTopScores)) {
                 estado = TOPSCORES;
@@ -81,12 +85,19 @@ int main(void) {
                 estado = TELA_INICIAL;
             }
         }
+        else if (estado == CUTSCENE) {
+            if (atualizarCutscene(&cutscene, dt)) {
+            estado = JOGANDO;
+            reiniciarJogo(&jogo);   // começa a contagem regressiva
+            }
+        }
         else if (estado == JOGANDO) {
             atualizarNave(&jogo.nave);
 
             if (IsKeyPressed(KEY_SPACE)) {
                 Vector2 saida = { jogo.nave.posicao.x + jogo.nave.largura / 2 - 2, jogo.nave.posicao.y };
                 jogo.listaTiros = adicionarTiro(jogo.listaTiros, saida);
+                tocarSomTiro(&som);
             }
 
             atualizarTiros(jogo.listaTiros);
@@ -103,8 +114,6 @@ int main(void) {
                 }
 
                 jogo.velocidadeExtraAsteroides = (jogo.velocidadeKMH - VELOCIDADE_INICIAL_KMH) * 1.5f;
-
-                atualizarPlanetas(planetas, dt, jogo.velocidadeExtraAsteroides, jogo.lapAtual);
 
                 if (jogo.spawnRateAtual > jogo.limiteMinimoAtual) {
                     jogo.spawnRateAtual -= REDUCAO_SPAWN_POR_SEGUNDO * dt;
@@ -147,6 +156,7 @@ int main(void) {
                                 atualTiro = atualTiro->next;
                                 free(removido);
                                 jogo.pontuacao += PONTOS_POR_ASTEROIDE;
+                                tocarSomExplosao(&som);
 
                                 Vector2 posOriginal = jogo.asteroides[i].posicao;
                                 bool eraGrandeOuMedio = (jogo.asteroides[i].tipo == ASTEROIDE_GRANDE || jogo.asteroides[i].tipo == ASTEROIDE_MEDIO);
@@ -204,6 +214,7 @@ int main(void) {
                             }
 
                             jogo.nave.vidas--;
+                            tocarSomDano(&som);
 
                             if (jogo.nave.vidas <= 0 && estado == JOGANDO) {
                                 estado = GAMEOVER;
@@ -250,9 +261,12 @@ int main(void) {
         BeginDrawing();
             ClearBackground(BLACK);
             desenharEstrelas(estrelas);
+            if (!(estado == CUTSCENE && cutsceneMostrandoImagem(&cutscene))) {
+                desenharEstrelas(estrelas);
+            }
 
-            if (estado == JOGANDO) {
-                desenharPlanetas(planetas, jogo.lapAtual);
+            if (estado == CUTSCENE) {
+                desenharCutscene(&cutscene);
             }
 
             if (estado == TELA_INICIAL) {
@@ -318,6 +332,8 @@ int main(void) {
     }
 
     liberarTiros(jogo.listaTiros);
+    liberarCutscene(&cutscene);
+    liberarSom(&som);
     CloseWindow();
     return 0;
 }
