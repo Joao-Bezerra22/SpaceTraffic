@@ -55,25 +55,6 @@ void desenharMarte(Marte marte) {
 
     DrawCircle(x, y, r, (Color){ 204, 82, 46, 255 });
 
-<<<<<<< HEAD
-            DrawEllipse(x, y - (int)(r * 0.78f), r * 0.48f, r * 0.16f, RAYWHITE);
-            DrawEllipse(x, y + (int)(r * 0.78f), r * 0.45f, r * 0.15f, RAYWHITE);
-        }
-        else if (planetas[i].tipo == planeta_marte) {
-            DrawCircle(x, y, r, (Color){ 195, 75, 45, 255 });
-            DrawCircle(x - (int)(r * 0.25f), y + (int)(r * 0.10f), r * 0.32f, (Color){ 145, 48, 28, 255 });
-            DrawCircle(x + (int)(r * 0.28f), y - (int)(r * 0.15f), r * 0.22f, (Color){ 145, 48, 28, 255 });
-            DrawEllipse(x, y - (int)(r * 0.78f), r * 0.42f, r * 0.14f, RAYWHITE);
-        }
-        else if (planetas[i].tipo == planeta_jupiter) {
-            DrawCircle(x, y, r, (Color){ 210, 180, 140, 255 });
-            DrawEllipse(x, y - (int)(r * 0.42f), r * 0.85f, r * 0.14f, (Color){ 165, 110, 70, 255 });
-            DrawEllipse(x, y + (int)(r * 0.05f), r * 0.94f, r * 0.16f, (Color){ 180, 120, 75, 255 });
-            DrawEllipse(x, y + (int)(r * 0.48f), r * 0.80f, r * 0.13f, (Color){ 155, 100, 65, 255 });
-            DrawEllipse(x + (int)(r * 0.25f), y + (int)(r * 0.24f), r * 0.26f, r * 0.15f, (Color){ 195, 70, 45, 255 });
-        }
-    }
-=======
     DrawCircle(x, y + 18, r - 6.0f,  (Color){ 186, 68, 36, 255 });
     DrawCircle(x, y + 42, r - 14.0f, (Color){ 165, 55, 28, 255 });
 
@@ -96,5 +77,4 @@ void desenharMarte(Marte marte) {
 
     DrawEllipse(x + 240, topo + 72, 20, 6, (Color){ 222, 102, 62, 180 });
     DrawEllipse(x + 240, topo + 73, 15, 4, (Color){ 125, 36, 18, 220 });
->>>>>>> f98e876af0309ac1eafdfa8bb1aec5446ecbdd0c
 }
