@@ -36,6 +36,18 @@ void iniciarPlanetas(Planeta planetas[]) {
     planetas[1].tipo = planeta_terra;
     planetas[1].velocidadeBase = 35.0f;
     planetas[1].lapPertencente = 1;
+
+    planetas[2].posicao = (Vector2){ GetScreenWidth() * 0.30f, -270.0f };
+    planetas[2].raio = 10.5f;
+    planetas[2].tipo = planeta_marte;
+    planetas[2].velocidadeBase = 33.0f;
+    planetas[2].lapPertencente = 2;
+
+    planetas[3].posicao = (Vector2){ GetScreenWidth() * 0.70f, -425.0f };
+    planetas[3].raio = 17.5f;
+    planetas[3].tipo = planeta_jupiter;
+    planetas[3].velocidadeBase = 38.0f;
+    planetas[3].lapPertencente = 2;
 }
 
 void atualizarPlanetas(Planeta planetas[], float dt, float velocidadeExtra, int lapAtual) {
@@ -76,5 +88,17 @@ void desenharPlanetas(Planeta planetas[], int lapAtual) {
             DrawEllipse(x, y - (int)(r * 0.78f), r * 0.48f, r * 0.16f, RAYWHITE);
             DrawEllipse(x, y + (int)(r * 0.78f), r * 0.45f, r * 0.15f, RAYWHITE);
         }
+        else if (planetas[i].tipo == planeta_marte) {
+            DrawCircle(x, y, r, (Color){ 195, 75, 45, 255 });
+            DrawCircle(x - (int)(r * 0.25f), y + (int)(r * 0.10f), r * 0.32f, (Color){ 145, 48, 28, 255 });
+            DrawCircle(x + (int)(r * 0.28f), y - (int)(r * 0.15f), r * 0.22f, (Color){ 145, 48, 28, 255 });
+            DrawEllipse(x, y - (int)(r * 0.78f), r * 0.42f, r * 0.14f, RAYWHITE);
+        }
+        else if (planetas[i].tipo == planeta_jupiter) {
+            DrawCircle(x, y, r, (Color){ 210, 180, 140, 255 });
+            DrawEllipse(x, y - (int)(r * 0.42f), r * 0.85f, r * 0.14f, (Color){ 165, 110, 70, 255 });
+            DrawEllipse(x, y + (int)(r * 0.05f), r * 0.94f, r * 0.16f, (Color){ 180, 120, 75, 255 });
+            DrawEllipse(x, y + (int)(r * 0.48f), r * 0.80f, r * 0.13f, (Color){ 155, 100, 65, 255 });
+            DrawEllipse(x + (int)(r * 0.25f), y + (int)(r * 0.24f), r * 0.26f, r * 0.15f, (Color){ 195, 70, 45, 255 });
     }
 }

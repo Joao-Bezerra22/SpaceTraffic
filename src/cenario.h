@@ -2,7 +2,7 @@
 #define CENARIO_H
 
 #define NUM_ESTRELAS 100
-#define MAX_PLANETAS 2
+#define MAX_PLANETAS 4
 
 typedef struct {
     float x;
@@ -11,7 +11,9 @@ typedef struct {
 
 typedef enum {
     planeta_venus,
-    planeta_terra
+    planeta_terra,
+    planeta_marte,
+    planeta_jupiter
 } TipoPlaneta;
 
 typedef struct {
