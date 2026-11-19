@@ -5,6 +5,7 @@
 #include "placar.h"
 #include "cutscene.h"
 #include "som.h"
+
 typedef enum {
     TELA_INICIAL,
     CUTSCENE,
@@ -42,6 +43,9 @@ int main(void) {
     Estrela estrelas[NUM_ESTRELAS];
     iniciarEstrelas(estrelas);
 
+    Marte marte;
+    iniciarMarte(&marte);
+
     EstadoJogo estado = TELA_INICIAL;
 
     Jogo jogo;
@@ -63,6 +67,9 @@ int main(void) {
         if (IsKeyPressed(KEY_F11) || IsWindowResized()) {
             iniciarEstrelas(estrelas);
             posicionarNaveNoInicio(&jogo.nave);
+            if (jogo.tempoContagem > 0) {
+                iniciarMarte(&marte);
+            }
         }
         float dt = GetFrameTime();
         atualizarEstrelas(estrelas, jogo.velocidadeExtraAsteroides);
@@ -89,10 +96,16 @@ int main(void) {
             if (atualizarCutscene(&cutscene, dt)) {
             estado = JOGANDO;
             reiniciarJogo(&jogo);   // começa a contagem regressiva
+            iniciarMarte(&marte);
             }
         }
         else if (estado == JOGANDO) {
             atualizarNave(&jogo.nave);
+
+            if (jogo.tempoContagem > 0) {
+                jogo.nave.posicao.x = (GetScreenWidth() - jogo.nave.largura) / 2.0f;
+                jogo.nave.posicao.y = GetScreenHeight() - jogo.nave.altura - 65.0f; // Sutilmente acima de Marte
+            }
 
             if (IsKeyPressed(KEY_SPACE)) {
                 Vector2 saida = { jogo.nave.posicao.x + jogo.nave.largura / 2 - 2, jogo.nave.posicao.y };
@@ -115,6 +128,8 @@ int main(void) {
 
                 jogo.velocidadeExtraAsteroides = (jogo.velocidadeKMH - VELOCIDADE_INICIAL_KMH) * 1.5f;
 
+                atualizarMarte(&marte, dt, jogo.velocidadeExtraAsteroides);
+
                 if (jogo.spawnRateAtual > jogo.limiteMinimoAtual) {
                     jogo.spawnRateAtual -= REDUCAO_SPAWN_POR_SEGUNDO * dt;
                 }
@@ -122,12 +137,14 @@ int main(void) {
                     jogo.spawnRateAtual = jogo.limiteMinimoAtual;
                 }
 
-                jogo.tempoUltimoSpawn += dt;
+                if (!marte.ativo) {
+                    jogo.tempoUltimoSpawn += dt;
 
-                if (jogo.tempoUltimoSpawn > jogo.spawnRateAtual) {
+                    if (jogo.tempoUltimoSpawn > jogo.spawnRateAtual) {
                     iniciarAsteroides(jogo.asteroides, MAX_ASTEROIDES, jogo.velocidadeExtraAsteroides);
                     jogo.tempoUltimoSpawn = 0.0f;
                 }
+            }
 
                 for (int i = 0; i < MAX_ASTEROIDES; i++) {
                     AsteroidAtualizar(&jogo.asteroides[i], dt, jogo.velocidadeExtraAsteroides);
@@ -260,8 +277,9 @@ int main(void) {
 
         BeginDrawing();
             ClearBackground(BLACK);
-            desenharEstrelas(estrelas);
-            if (!(estado == CUTSCENE && cutsceneMostrandoImagem(&cutscene))) {
+            
+            bool emMarteInicial = (estado == JOGANDO && jogo.tempoContagem > 0);
+            if (!(estado == CUTSCENE && cutsceneMostrandoImagem(&cutscene)) && !emMarteInicial) {
                 desenharEstrelas(estrelas);
             }
 
@@ -281,6 +299,7 @@ int main(void) {
             }
 
             if (estado == JOGANDO) {
+                desenharMarte(marte);
                 desenharNave(jogo.nave);
                 desenharTiros(jogo.listaTiros);
 
