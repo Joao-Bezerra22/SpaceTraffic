@@ -100,5 +100,6 @@ void desenharPlanetas(Planeta planetas[], int lapAtual) {
             DrawEllipse(x, y + (int)(r * 0.05f), r * 0.94f, r * 0.16f, (Color){ 180, 120, 75, 255 });
             DrawEllipse(x, y + (int)(r * 0.48f), r * 0.80f, r * 0.13f, (Color){ 155, 100, 65, 255 });
             DrawEllipse(x + (int)(r * 0.25f), y + (int)(r * 0.24f), r * 0.26f, r * 0.15f, (Color){ 195, 70, 45, 255 });
+        }
     }
 }
