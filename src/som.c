@@ -6,6 +6,7 @@ void carregarSom(Som *som) {
     som->proximoTiro = 0;
     som->proximaExplosao = 0;
     som->proximoDano = 0;
+    som->trilhaAtual = TRILHA_NENHUMA;
 
     Wave waveTiro = LoadWave(ARQ_SOM_TIRO);
     Wave waveExplosao = LoadWave(ARQ_SOM_EXPLOSAO);
@@ -27,6 +28,17 @@ void carregarSom(Som *som) {
     UnloadWave(waveTiro);
     UnloadWave(waveExplosao);
     UnloadWave(waveDano);
+    som->trilhas[TRILHA_MENU]     = LoadMusicStream(ARQ_TRILHA_MENU);
+    som->trilhas[TRILHA_CUTSCENE] = LoadMusicStream(ARQ_TRILHA_CUTSCENE);
+    som->trilhas[TRILHA_JOGO]     = LoadMusicStream(ARQ_TRILHA_JOGO);
+
+    for (int i = 0; i < NUM_TRILHAS; i++) {
+         if (som->trilhas[i].frameCount == 0) {
+            TraceLog(LOG_WARNING, "SOM: trilha %d NAO carregou (confira nome/pasta do arquivo)", i);
+        }
+        som->trilhas[i].looping = true;
+        SetMusicVolume(som->trilhas[i], 0.5f);
+    }
 }
 
 void tocarSomTiro(Som *som) {
@@ -44,9 +56,30 @@ void tocarSomDano(Som *som) {
     som->proximoDano = (som->proximoDano + 1) % POOL_DANO;
 }
 
+void tocarTrilha(Som *som, Trilha trilha) {
+    if (trilha == som->trilhaAtual) return;
+
+    if (som->trilhaAtual != TRILHA_NENHUMA) {
+        StopMusicStream(som->trilhas[som->trilhaAtual]);
+    }
+
+    som->trilhaAtual = trilha;
+
+    if (trilha != TRILHA_NENHUMA) {
+        PlayMusicStream(som->trilhas[trilha]);
+    }
+}
+
+void atualizarSom(Som *som) {
+    if (som->trilhaAtual != TRILHA_NENHUMA) {
+        UpdateMusicStream(som->trilhas[som->trilhaAtual]);
+    }
+}
+
 void liberarSom(Som *som) {
     for (int i = 0; i < POOL_TIRO; i++) UnloadSound(som->tiros[i]);
     for (int i = 0; i < POOL_EXPLOSAO; i++) UnloadSound(som->explosoes[i]);
     for (int i = 0; i < POOL_DANO; i++) UnloadSound(som->danos[i]);
+    for (int i = 0; i < NUM_TRILHAS; i++) UnloadMusicStream(som->trilhas[i]);
     CloseAudioDevice();
 }
