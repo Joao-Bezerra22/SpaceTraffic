@@ -24,67 +24,38 @@ void desenharEstrelas(Estrela estrelas[]) {
     }
 }
 
-void iniciarPlanetas(Planeta planetas[]) {
-    planetas[0].posicao = (Vector2){ GetScreenWidth() * 0.25f, -220.0f };
-    planetas[0].raio = 11.5f;
-    planetas[0].tipo = planeta_venus;
-    planetas[0].velocidadeBase = 32.0f;
-    planetas[0].lapPertencente = 1;
-
-    planetas[1].posicao = (Vector2){ GetScreenWidth() * 0.75f, -580.0f };
-    planetas[1].raio = 12.5f;
-    planetas[1].tipo = planeta_terra;
-    planetas[1].velocidadeBase = 35.0f;
-    planetas[1].lapPertencente = 1;
-
-    planetas[2].posicao = (Vector2){ GetScreenWidth() * 0.30f, -270.0f };
-    planetas[2].raio = 10.5f;
-    planetas[2].tipo = planeta_marte;
-    planetas[2].velocidadeBase = 33.0f;
-    planetas[2].lapPertencente = 2;
-
-    planetas[3].posicao = (Vector2){ GetScreenWidth() * 0.70f, -425.0f };
-    planetas[3].raio = 17.5f;
-    planetas[3].tipo = planeta_jupiter;
-    planetas[3].velocidadeBase = 38.0f;
-    planetas[3].lapPertencente = 2;
+void iniciarMarte(Marte *marte) {
+    marte->raio = GetScreenWidth() * 1.15f;
+    marte->posicao.x = GetScreenWidth() / 2.0f;
+    
+    marte->posicao.y = GetScreenHeight() + marte->raio - 95.0f;
+    marte->ativo = true;
 }
 
-void atualizarPlanetas(Planeta planetas[], float dt, float velocidadeExtra, int lapAtual) {
-    for (int i = 0; i < MAX_PLANETAS; i++) {
-        if (planetas[i].lapPertencente != lapAtual) continue;
+void atualizarMarte(Marte *marte, float dt, float velocidadeExtra) {
+    if (!marte->ativo) return;
 
-        float velocidadeReal = planetas[i].velocidadeBase + (velocidadeExtra * 0.15f);
-        planetas[i].posicao.y += velocidadeReal * dt;
+    float velocidadeDecolagem = 180.0f + (velocidadeExtra * 0.5f);
+    marte->posicao.y += velocidadeDecolagem * dt;
 
-        if (planetas[i].posicao.y - planetas[i].raio > GetScreenHeight() + 50.0f) {
-            planetas[i].posicao.y = -700.0f;
-            planetas[i].posicao.x = (float)GetRandomValue(60, GetScreenWidth() - 60);
-        }
+    if (marte->posicao.y - marte->raio > GetScreenHeight()) {
+        marte->ativo = false;
     }
 }
 
-void desenharPlanetas(Planeta planetas[], int lapAtual) {
-    for (int i = 0; i < MAX_PLANETAS; i++) {
-        if (planetas[i].lapPertencente != lapAtual) continue;
+void desenharMarte(Marte marte) {
+    if (!marte.ativo) return;
 
-        int x = (int)planetas[i].posicao.x;
-        int y = (int)planetas[i].posicao.y;
-        float r = planetas[i].raio;
+    int x = (int)marte.posicao.x;
+    int y = (int)marte.posicao.y;
+    float r = marte.raio;
 
-        if (planetas[i].tipo == planeta_venus) {
-            DrawCircle(x, y, r, (Color){ 215, 155, 65, 255 });
-            DrawEllipse(x, y - (int)(r * 0.35f), r * 0.78f, r * 0.16f, (Color){ 238, 195, 110, 255 });
-            DrawEllipse(x + (int)(r * 0.1f), y + (int)(r * 0.15f), r * 0.85f, r * 0.18f, (Color){ 185, 120, 45, 255 });
-            DrawEllipse(x - (int)(r * 0.1f), y + (int)(r * 0.52f), r * 0.62f, r * 0.14f, (Color){ 235, 185, 95, 255 });
-        }
-        else if (planetas[i].tipo == planeta_terra) {
-            DrawCircle(x, y, r, (Color){ 35, 105, 210, 255 });
+    DrawCircle(x, y, r + 18.0f, (Color){ 210, 80, 40, 20 });
+    DrawCircle(x, y, r + 8.0f,  (Color){ 225, 95, 50, 45 });
 
-            DrawCircle(x - (int)(r * 0.32f), y - (int)(r * 0.15f), r * 0.38f, (Color){ 55, 165, 75, 255 });
-            DrawCircle(x - (int)(r * 0.18f), y + (int)(r * 0.25f), r * 0.28f, (Color){ 55, 165, 75, 255 });
-            DrawCircle(x + (int)(r * 0.35f), y + (int)(r * 0.10f), r * 0.34f, (Color){ 55, 165, 75, 255 });
+    DrawCircle(x, y, r, (Color){ 204, 82, 46, 255 });
 
+<<<<<<< HEAD
             DrawEllipse(x, y - (int)(r * 0.78f), r * 0.48f, r * 0.16f, RAYWHITE);
             DrawEllipse(x, y + (int)(r * 0.78f), r * 0.45f, r * 0.15f, RAYWHITE);
         }
@@ -102,4 +73,28 @@ void desenharPlanetas(Planeta planetas[], int lapAtual) {
             DrawEllipse(x + (int)(r * 0.25f), y + (int)(r * 0.24f), r * 0.26f, r * 0.15f, (Color){ 195, 70, 45, 255 });
         }
     }
+=======
+    DrawCircle(x, y + 18, r - 6.0f,  (Color){ 186, 68, 36, 255 });
+    DrawCircle(x, y + 42, r - 14.0f, (Color){ 165, 55, 28, 255 });
+
+    int topo = y - (int)r;
+
+    DrawEllipse(x - 210, topo + 55, 55, 12, (Color){ 145, 45, 22, 180 });
+    DrawEllipse(x + 180, topo + 48, 65, 14, (Color){ 145, 45, 22, 180 });
+    DrawEllipse(x - 40,  topo + 78, 80, 16, (Color){ 140, 42, 20, 190 });
+    DrawEllipse(x + 320, topo + 85, 50, 11, (Color){ 145, 45, 22, 170 });
+    DrawEllipse(x - 340, topo + 90, 45, 10, (Color){ 145, 45, 22, 170 });
+
+    DrawEllipse(x - 110, topo + 42, 18, 6, (Color){ 222, 102, 62, 200 });
+    DrawEllipse(x - 110, topo + 43, 14, 4, (Color){ 125, 36, 18, 230 });
+
+    DrawEllipse(x + 95,  topo + 62, 24, 8, (Color){ 222, 102, 62, 200 });
+    DrawEllipse(x + 95,  topo + 63, 19, 6, (Color){ 125, 36, 18, 230 });
+
+    DrawEllipse(x - 260, topo + 75, 16, 5, (Color){ 222, 102, 62, 180 });
+    DrawEllipse(x - 260, topo + 76, 12, 3, (Color){ 125, 36, 18, 220 });
+
+    DrawEllipse(x + 240, topo + 72, 20, 6, (Color){ 222, 102, 62, 180 });
+    DrawEllipse(x + 240, topo + 73, 15, 4, (Color){ 125, 36, 18, 220 });
+>>>>>>> f98e876af0309ac1eafdfa8bb1aec5446ecbdd0c
 }
