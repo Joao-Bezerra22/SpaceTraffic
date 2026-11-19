@@ -26,13 +26,13 @@ void desenharEstrelas(Estrela estrelas[]) {
 
 void iniciarPlanetas(Planeta planetas[]) {
     planetas[0].posicao = (Vector2){ GetScreenWidth() * 0.25f, -220.0f };
-    planetas[0].raio = 23.0f;
+    planetas[0].raio = 11.5f;
     planetas[0].tipo = planeta_venus;
     planetas[0].velocidadeBase = 32.0f;
     planetas[0].lapPertencente = 1;
 
     planetas[1].posicao = (Vector2){ GetScreenWidth() * 0.75f, -580.0f };
-    planetas[1].raio = 25.0f;
+    planetas[1].raio = 12.5f;
     planetas[1].tipo = planeta_terra;
     planetas[1].velocidadeBase = 35.0f;
     planetas[1].lapPertencente = 1;
