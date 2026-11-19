@@ -12,6 +12,18 @@
 #define POOL_EXPLOSAO  6
 #define POOL_DANO 6
 
+#define ARQ_TRILHA_MENU      "sons/TELA_INICIAL.wav"
+#define ARQ_TRILHA_CUTSCENE  "sons/CUTSCENE.wav"
+#define ARQ_TRILHA_JOGO      "sons/JOGANDO.wav.wav"
+
+typedef enum {
+    TRILHA_NENHUMA = -1,
+    TRILHA_MENU = 0,
+    TRILHA_CUTSCENE,
+    TRILHA_JOGO,
+    NUM_TRILHAS
+} Trilha;
+
 typedef struct {
     Sound tiros[POOL_TIRO];
     Sound explosoes[POOL_EXPLOSAO];
@@ -19,6 +31,10 @@ typedef struct {
     int proximoTiro;
     int proximaExplosao;
     int proximoDano;
+
+    Music trilhas[NUM_TRILHAS];
+    Trilha trilhaAtual;
+
 } Som;
 
 
@@ -27,6 +43,9 @@ void carregarSom(Som *som);
 void tocarSomTiro(Som *som);
 void tocarSomExplosao(Som *som);
 void tocarSomDano(Som *som);
+
+void tocarTrilha(Som *som, Trilha trilha);
+void atualizarSom(Som *som);
 
 void liberarSom(Som *som);
 

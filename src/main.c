@@ -36,6 +36,7 @@ int main(void) {
 
     Som som;
     carregarSom(&som);
+    tocarTrilha(&som, TRILHA_MENU);
 
     Cutscene cutscene;
     carregarCutscene(&cutscene);
@@ -59,6 +60,7 @@ int main(void) {
     Placar placar;
     carregarPlacar(&placar);
     int posicaoNoPlacar = -1;
+    bool imagemAnterior = false;
 
     while (!WindowShouldClose()) {
         if (IsKeyPressed(KEY_F11)) {
@@ -72,6 +74,7 @@ int main(void) {
             }
         }
         float dt = GetFrameTime();
+        atualizarSom(&som);
         atualizarEstrelas(estrelas, jogo.velocidadeExtraAsteroides);
         if (estado == TELA_INICIAL) {
             botaoStart.x = (GetScreenWidth() - 200) / 2.0f;
@@ -80,6 +83,8 @@ int main(void) {
             if (botaoClicado(botaoStart)) {
                 estado = CUTSCENE;
                 iniciarCutscene(&cutscene);
+                tocarTrilha(&som, TRILHA_CUTSCENE);
+                imagemAnterior = false;
             }
             if (botaoClicado(botaoTopScores)) {
                 estado = TOPSCORES;
@@ -96,7 +101,6 @@ int main(void) {
             if (atualizarCutscene(&cutscene, dt)) {
             estado = JOGANDO;
             reiniciarJogo(&jogo);   // começa a contagem regressiva
-            iniciarMarte(&marte);
             }
         }
         else if (estado == JOGANDO) {
@@ -235,6 +239,7 @@ int main(void) {
 
                             if (jogo.nave.vidas <= 0 && estado == JOGANDO) {
                                 estado = GAMEOVER;
+                                tocarTrilha(&som, TRILHA_NENHUMA);
                                 posicaoNoPlacar = registrarPontuacao(&placar, (int)jogo.pontuacao);
                                 if (posicaoNoPlacar != -1) {
                                     salvarPlacar(placar);
@@ -272,6 +277,7 @@ int main(void) {
         else if (estado == GAMEOVER) {
             if (IsKeyPressed(KEY_ENTER)) {
                 estado = TELA_INICIAL;
+                tocarTrilha(&som, TRILHA_MENU);
             }
         }
 
