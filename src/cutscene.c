@@ -6,7 +6,7 @@ static const char *arquivosCenas[NUM_CENAS] = {
     "assets/cena_1_16x9.png",      // cena 1: casa em Marte
     "assets/cena_2_16x9.png",   // cena 2: alien acordando
     "assets/cena_3_16x9.png",   // cena 3: celular
-    "assets/Cena_4_16x9.png"    // cena 4: nave no espaço
+    "assets/cena_4_16x9.png"    // cena 4: nave no espaço
 };
 
 void carregarCutscene(Cutscene *c) {
