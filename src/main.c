@@ -102,9 +102,25 @@ int main(void) {
             }
         }
         else if (estado == CUTSCENE) {
+            bool terminou = atualizarCutscene(&cutscene, dt);
+
+            // Quando sai da ultima imagem do slideshow, troca para a musica do jogo
+            bool mostrandoImagem = cutsceneMostrandoImagem(&cutscene);
+            if (imagemAnterior && !mostrandoImagem) {
+                tocarTrilha(&som, TRILHA_JOGO);
+            }
+            imagemAnterior = mostrandoImagem;
+
+            if (terminou) {
+                estado = JOGANDO;
+                reiniciarJogo(&jogo);
+                iniciarMarte(&marte);
+                tocarTrilha(&som, TRILHA_JOGO);   // garante, caso ainda nao tenha trocado
+
             if (atualizarCutscene(&cutscene, dt)) {
             estado = JOGANDO;
             reiniciarJogo(&jogo);   // começa a contagem regressiva
+            iniciarMarte(&marte);
             }
         }
         else if (estado == JOGANDO) {
@@ -382,4 +398,5 @@ int main(void) {
     liberarSom(&som);
     CloseWindow();
     return 0;
+}
 }
