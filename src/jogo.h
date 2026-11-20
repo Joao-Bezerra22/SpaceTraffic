@@ -6,11 +6,11 @@
 #include "tiro.h"
 #include "asteroides.h"
 
-#define VELOCIDADE_MAX_KMH   400.0f
+#define VELOCIDADE_MAX_KMH   445.0f
 #define TAXA_ACELERACAO      15.0f
 #define LAP_MAX              3
-#define SPAWN_MINIMO_LAP1    0.3f
-#define SPAWN_MINIMO_LAP2    0.2f
+#define SPAWN_MINIMO_LAP1    0.23f
+#define SPAWN_MINIMO_LAP2    0.28f
 #define SPAWN_MINIMO_LAP3    0.12f
 #define PONTOS_POR_ASTEROIDE 50
 

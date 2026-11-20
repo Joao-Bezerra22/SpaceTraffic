@@ -2,6 +2,8 @@
 #define CENARIO_H
 
 #include "raylib.h"
+#include "raymath.h"
+#include <math.h>
 
 #define NUM_ESTRELAS 100
 
@@ -23,5 +25,7 @@ void desenharEstrelas(Estrela estrelas[]);
 void iniciarMarte(Marte *marte);
 void atualizarMarte(Marte *marte, float dt, float velocidadeExtra);
 void desenharMarte(Marte marte);
+
+void desenharJupiter(float baseY);
 
 #endif

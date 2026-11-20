@@ -71,10 +71,11 @@ int main(void) {
         if (IsKeyPressed(KEY_F11) || IsWindowResized()) {
             iniciarEstrelas(estrelas);
             posicionarNaveNoInicio(&jogo.nave);
-            if (jogo.tempoContagem > 0) {
+            if (jogo.tempoContagem > 0 || estado == CUTSCENE) {
                 iniciarMarte(&marte);
             }
         }
+            
         float dt = GetFrameTime();
         atualizarSom(&som);
         atualizarEstrelas(estrelas, jogo.velocidadeExtraAsteroides);
@@ -87,6 +88,7 @@ int main(void) {
                 iniciarCutscene(&cutscene);
                 tocarTrilha(&som, TRILHA_CUTSCENE);
                 imagemAnterior = false;
+                iniciarMarte(&marte);
             }
             if (botaoClicado(botaoTopScores)) {
                 estado = TOPSCORES;
@@ -107,7 +109,8 @@ int main(void) {
         }
         else if (estado == JOGANDO) {
             atualizarNave(&jogo.nave);
-            
+            tocarTrilha(&som, TRILHA_JOGO);
+
             jogo.cooldownTiro -= dt;
 
             if (IsKeyPressed(KEY_SPACE) && jogo.cooldownTiro <= 0.0f) {
@@ -119,13 +122,6 @@ int main(void) {
             if (jogo.tempoContagem > 0) {
                 jogo.nave.posicao.x = (GetScreenWidth() - jogo.nave.largura) / 2.0f;
                 jogo.nave.posicao.y = GetScreenHeight() - jogo.nave.altura - 65.0f; // Sutilmente acima de Marte
-            }
-
-            if (IsKeyPressed(KEY_SPACE)) {
-                Vector2 saida = { jogo.nave.posicao.x + jogo.nave.largura / 2 - 2, jogo.nave.posicao.y };
-                jogo.listaTiros = adicionarTiro(jogo.listaTiros, saida);
-                tocarSomTiro(&som);
-                jogo.cooldownTiro = COOLDOWN_TIRO;
             }
 
             atualizarTiros(jogo.listaTiros);
@@ -304,13 +300,14 @@ int main(void) {
         BeginDrawing();
             ClearBackground(BLACK);
             
-            bool emMarteInicial = (estado == JOGANDO && jogo.tempoContagem > 0);
-            if (!(estado == CUTSCENE && cutsceneMostrandoImagem(&cutscene)) && !emMarteInicial) {
+            bool delayCutscene = (estado == CUTSCENE && !cutsceneMostrandoImagem(&cutscene));
+            if (!(estado == CUTSCENE && cutsceneMostrandoImagem(&cutscene))) {
                 desenharEstrelas(estrelas);
             }
 
             if (estado == CUTSCENE) {
                 desenharCutscene(&cutscene);
+                if (delayCutscene) desenharMarte(marte);
             }
 
             if (estado == TELA_INICIAL) {
@@ -326,6 +323,9 @@ int main(void) {
 
             if (estado == JOGANDO) {
                 desenharMarte(marte);
+                if (jogo.tempoContagem <= 0 && jogo.linhaLapAtiva && jogo.lapAtual == LAP_MAX) {
+                    desenharJupiter(jogo.posicaoLinhaLapY);
+                }
                 desenharNave(jogo.nave);
                 desenharTiros(jogo.listaTiros);
 
@@ -335,7 +335,7 @@ int main(void) {
                 } else {
                     desenharAsteroide(jogo.asteroides, MAX_ASTEROIDES);
 
-                    if(jogo.linhaLapAtiva){
+                    if(jogo.linhaLapAtiva && jogo.lapAtual != LAP_MAX){
                         DrawLine(0, (int)jogo.posicaoLinhaLapY, GetScreenWidth(), (int)jogo.posicaoLinhaLapY, YELLOW);
                     }
 
@@ -361,7 +361,7 @@ int main(void) {
             }
 
             if (estado == GAMEOVER || estado == VITORIA) {
-                if (estado == VITORIA) desenharTextoCentralizado("PARABENS! VOCE VENCEU!", 150, 50, GREEN);
+                if (estado == VITORIA) desenharTextoCentralizado("PARABÉNS! VOCÊ CHEGOU A JUPITER!", 150, 50, GREEN);
                 else desenharTextoCentralizado("GAME OVER", 150, 50, RED);
                 desenharTextoCentralizado(TextFormat("PONTOS: %i", (int)jogo.pontuacao), 215, 30, WHITE);
 
