@@ -116,11 +116,6 @@ int main(void) {
                 reiniciarJogo(&jogo);
                 iniciarMarte(&marte);
                 tocarTrilha(&som, TRILHA_JOGO);   // garante, caso ainda nao tenha trocado
-
-            if (atualizarCutscene(&cutscene, dt)) {
-            estado = JOGANDO;
-            reiniciarJogo(&jogo);   // começa a contagem regressiva
-            iniciarMarte(&marte);
             }
         }
         else if (estado == JOGANDO) {
@@ -398,5 +393,4 @@ int main(void) {
     liberarSom(&som);
     CloseWindow();
     return 0;
-}
 }
