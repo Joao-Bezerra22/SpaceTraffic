@@ -27,8 +27,8 @@ Mas cuidado:
 
 | Tecla | Ação |
 |---|---|
-| "a" e "d" | Mover a nave |
-| "k" | Atirar |
+| "Setinhas" | Mover a nave |
+| "espaço" | Atirar |
 
 ##  Tecnologias
 
@@ -118,10 +118,10 @@ SpaceTraffic/
 
 ## Vídeo
 
-_Link do vídeo de demonstração em breve._
+https://youtu.be/9QRvR-LmYUE
 
 ## 👥 Equipe
 
-- _Nome 1_ – https://github.com/Eduardo-Albuquerque1
+- Luiz Eduardo Albuquerque Alves de Lima – https://github.com/Eduardo-Albuquerque1
 - João Bezerra de Barros Neto – https://github.com/Joao-Bezerra22
 - Luiz Eduardo da Silva Moreira – https://github.com/lesm-fut
